@@ -26,11 +26,11 @@ This table maps compliance requirements to specific technical controls and the e
 A valid session token is stolen and used to call the patient-records API in bulk. The attacker "needles away at privileges" below alert thresholds to remain stealthy. The industry mean time to detect (MTTD) is 220 days; our architecture aims to detect this in minutes via behavioral anomalies.
 
 * **Detection:** * Microsoft Sentinel triggers a security alert  based on an anomaly: a known identity is requesting abnormal volumes of data outside of regular shifts. 
-    * We establish the timeline by asking: What triggered the alert? Is the source IP known? What else did this identity access (blast radius)?.
+    * I establish the timeline by asking: What triggered the alert? Is the source IP known? What else did this identity access (blast radius)?.
 * **Evidence:** * Collect identity logs (Entra ID) to review the AuthN process and verify if MFA was satisfied.
-    * Collect application logs (App Insights) to determine exactly which patient records were accessed.
+    * Collect application logs (App Insights) to determine exactly which patient records Ire accessed.
     * Normalize all timestamps to UTC to build a chronological timeline.
-* **Containment:** * We follow the principle of containment without evidence destruction. Deleting the compromised resource destroys forensic evidence.
+* **Containment:** * I follow the principle of containment without evidence destruction. Deleting the compromised resource destroys forensic evidence.
     * Immediate actions: Revoke the session token, isolate the resource via network rules, and capture a snapshot/image of the system state before any further remediation.
     * All containment actions are logged to join the incident record.
 * **Remediation:** * Conduct a root cause analysis to determine how the credential was compromised.
@@ -40,15 +40,15 @@ A valid session token is stolen and used to call the patient-records API in bulk
 
 ### Key Design Decisions and Tradeoffs
 
-**Identity as the New Perimeter:** The architecture assumes the network is breached and forces authentication (AuthN) and authorization (AuthZ) on every request. We utilize OpenID Connect (OIDC) and JSON Web Tokens (JWTs) for cloud-native, lightweight authentication , avoiding older, inflexible protocols like SAML where possible. Because JWTs cannot be revoked once issued, we rely on Just-In-Time (JIT) access and short-lived tokens to mitigate risk. Entra ID serves as the central hub, federating enterprise customer IdPs to ensure tenant isolation while allowing unilateral trust revocation. 
+**Identity as the New Perimeter:** The architecture assumes the network is breached and forces authentication (AuthN) and authorization (AuthZ) on every request. I utilize OpenID Connect (OIDC) and JSON Ib Tokens (JWTs) for cloud-native, lightIight authentication , avoiding older, inflexible protocols like SAML where possible. Because JWTs cannot be revoked once issued, I rely on Just-In-Time (JIT) access and short-lived tokens to mitigate risk. Entra ID serves as the central hub, federating enterprise customer IdPs to ensure tenant isolation while allowing unilateral trust revocation. 
 
-**Guardrails over Gates:** Gates (like change approval boards) block progress and slow delivery. We opted for Guardrails (Azure Policy in deny mode) because they protect delivery and scale with automated pipelines. Developers can deploy anything *except* specific violations. 
+**Guardrails over Gates:** Gates (like change approval boards) block progress and slow delivery. I opted for Guardrails (Azure Policy in deny mode) because they protect delivery and scale with automated pipelines. Developers can deploy anything *except* specific violations. 
 
 **Audit Mode before Deny Mode:** Policies fail when they are too broad, blocking legitimate work and forcing teams to bypass security entirely. To prevent this, all new policies are first deployed in "Audit" mode to detect non-compliant resources without breaking critical workflows, moving to "Deny" mode only after validation. 
 
-**Visibility over Assumptions:** A major cause of ignored breaches is disabling logs to save costs or setting retention times too short. Visibility is always limited by what you choose to log. We prioritized comprehensive logging across the control plane, data plane, and identity services, recognizing that audit trails are the foundation for detection and compliance.
+**Visibility over Assumptions:** A major cause of ignored breaches is disabling logs to save costs or setting retention times too short. Visibility is always limited by what you choose to log. I prioritized comprehensive logging across the control plane, data plane, and identity services, recognizing that audit trails are the foundation for detection and compliance.
 
 **Reflection: Tradeoffs and What's Next:**
-The sharpest tension is between security rigor and development velocity. Azure Policy in deny mode prevents misconfigurations but can slow experimentation. The mitigation is a dedicated sandbox subscription under a less-restrictive management group. 
+The sharpest tension is betIen security rigor and development velocity. Azure Policy in deny mode prevents misconfigurations but can slow experimentation. The mitigation is a dedicated sandbox subscription under a less-restrictive management group. 
 
-Cost versus coverage is the second tradeoff. A full 24/7 SOC is often out of reach for a mid-sized company. We mitigate this by relying on Microsoft Sentinel's automated security alerts. With more budget, I would implement regularly scheduled tabletop exercises. These simulated incidents reveal operational gaps—such as who lacks log access or doesn't know the escalation path—before a real crisis occurs.
+Cost versus coverage is the second tradeoff. A full 24/7 SOC is often out of reach for a mid-sized company. I mitigate this by relying on Microsoft Sentinel's automated security alerts. With more budget, I would implement regularly scheduled tabletop exercises. These simulated incidents reveal operational gaps (such as who lacks log access or doesn't know the escalation path) before a real crisis occurs.
