@@ -74,7 +74,7 @@ The application logs are the most critical evidence for regulatory reporting: un
 
 ### Containment
 
-The guiding principle is **containment without evidence destruction**. Deleting the affected resource before capturing its state permanently destroys evidence for forencsics. Every action taken during containment is itself logged and appended to the incident record to maintain the trail.
+The guiding principle is **containment without evidence destruction**. Deleting the affected resource before capturing its state permanently destroys evidence for forensics. Every action taken during containment is itself logged and appended to the incident record to maintain the trail.
 
 Immediate containment steps, executed in order:
 
@@ -101,12 +101,6 @@ For long-term prevention, two process controls are added:
 - **Tabletop exercises** run twice yearly, simulating this exact scenario. The goal is not to test the tech, but to verify that the team knows who to call, who has log access, what the escalation path to the Security/Privacy Officer looks like, and how to initiate HIPAA breach notification procedures within the 60-day reporting window if required.
 
 The incident is closed with a report documenting the timeline, decisions made, evidence collected, and any policy or control gaps identified. That document contributes directly into the next compliance audit as evidence of a functioning incident response plan.
-
-### Key Design Decisions and Tradeoffs
-
-Here's the rewritten section:
-
----
 
 ### Key Design Decisions and Tradeoffs
 
