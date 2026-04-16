@@ -19,7 +19,7 @@ After AuthN, Entra ID issues a signed JWT containing identity claims and role as
 
 ### Visibility Layer
 
-The visibility layer is the foundation for detection and compliance. **Azure Monitor** collects control plane logs (**Activity Logs, ARM logs** tracking all CRUD operations) and feeds them to **Microsoft Sentinel**. **Application Insights** captures data plane telemetry from the Patient Records API/ Every request, response code, record ID accessed, and timestamp is logged here. As the lecture notes emphasize, visibility is always limited by what you choose to log, and ignored breaches are most commonly caused by logs being disabled to save costs or retention times set too short. This architecture prioritizes comprehensive logging: logs are routed to immutable **Azure Storage** with **Resource Locks** to prevent deletion or tampering, retained for one year to satisfy **HIPAA** audit requirements, and all timestamps are normalized to UTC.
+The visibility layer is the foundation for detection and compliance. **Azure Monitor** collects control plane logs (**Activity Logs, ARM logs** tracking all CRUD operations) and feeds them to **Microsoft Sentinel**. **Application Insights** captures data plane telemetry from the Patient Records API. Every request, response code, record ID accessed, and timestamp is logged here. As the lecture notes emphasize, visibility is always limited by what you choose to log, and ignored breaches are most commonly caused by logs being disabled to save costs or retention times set too short. This architecture prioritizes comprehensive logging: logs are routed to immutable **Azure Storage** with **Resource Locks** to prevent deletion or tampering, retained for one year to satisfy **HIPAA** audit requirements, and all timestamps are normalized to UTC.
 Microsoft Sentinel aggregates both log streams and applies behavioral analytics, using its Fusion engine to correlate signals that would not trigger alerts individually to match to MITRE ATT&CK patterns.
 
 ### Response Layer
@@ -54,8 +54,8 @@ Microsoft Sentinel fires a Medium-High severity alert based on two correlated si
 The initial triage questions I establish to scope the incident are:
 
 - What exactly triggered the alert? Which rule fired, and what was the anomaly score?
-- Is the source IP known? Does it resolve to a VPN, a residential ISP, a Tor exit node, or a known threat-actor range?
-- What is the blast radius? Which other resources, APIs, or data stores did this identity touch in the same session window?
+- Is the source IP known or trusted?
+- What is the blast radius? Which other resources, APIs, or data stores did this identity touch in the same window?
 - Is the session still active? Has the token been used in the last few minutes?
 
 ### Evidence Collection
@@ -67,7 +67,7 @@ Evidence is gathered in parallel, with all timestamps normalized to UTC before a
 | **Entra ID Sign-In Logs**           | Was MFA satisfied? What device and client app was used? Was the sign-in flagged as risky by Identity Protection?               |
 | **Entra ID Audit Logs**             | Were any role assignments or consent grants made during the session?                                                           |
 | **Application Insights (App Logs)** | Which patient record IDs were accessed, in what order, and at what rate? This establishes the exact scope of the PHI exposure. |
-| **Azure Activity Logs (ARM)**       | Did the attacker attempt to modify any resources — e.g., disable diagnostic settings or alter storage policies?                |
+| **Azure Activity Logs (ARM)**       | Did the attacker attempt to modify any resources? For example, disable diagnostic settings or alter storage policies?                |
 | **Microsoft Sentinel Incidents**    | Full correlated event timeline, related alerts, and entity mappings (user, IP, affected resources).                            |
 
 The application logs are the most critical evidence for regulatory reporting: under HIPAA, the covered entity must be able to identify which records were accessed and by whom. App Insights retains this at the individual request level.
@@ -112,7 +112,7 @@ Because JWTs are signed but not encrypted, and cannot be revoked once issued, th
 
 Furthermore, secrets are not identity. API keys and long-lived tokens prove possession but not authorization. The architecture explicitly prohibits embedding long-lived credentials in code or config. All machine access uses short-lived credentials tied to managed identity, because a leaked secret combined with an over-permissioned role is the most common cause for a breach.
 
-**Guardrails over Gates**
+**Guardrails > Gates**
 
 Gates like change approval boards block progress and slow delivery without making the system more secure. I opted for guardrails (Azure Policy in deny mode) because they protect delivery. Developers can deploy anything except specific violations. This scales with automated pipelines in a way that manual approval processes do not. Gates create pressure to bypass security entirely when they become bottlenecks, while guardrails remove that pressure by making the violation impossible rather than inconvenient.
 
