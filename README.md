@@ -90,17 +90,17 @@ Immediate containment steps, executed in order:
 
 Based on findings, the following remediation actions are scoped:
 
-- **If phishing:** Enforce hardware MFA (physical keys or cards) for all clinical staff, replacing SMS or TOTP as the second factor.
+- **If phishing:** Enforce hardware MFA (physical keys or cards) for all clinical staff, replacing the previous MFA method.
 - **If unmanaged device:** Enforce stronger Conditional Access based on user before granting access to patient data sources.
-- **If token lifetime was too long:** Reduce access token lifetime to 15 minutes for high-sensitivity APIs, and enforce continuous access evaluation (CAE) so token revocation happens near real-time rather than waiting for token expiry.
-- **Across all cases:** Rotate any service principal secrets or API keys that shared trust with the compromised identity.
+- **If token lifetime was too long:** Reduce access token lifetime to 15 minutes for high-sensitivity APIs, and enforce continuous access evaluation so token revocation happens near real-time rather than waiting for token expiry.
+- **Across all cases:** Rotate any service principal secrets or API keys that shared with the compromised identity.
 
 For long-term prevention, two process controls are added:
 
 - **Quarterly access reviews** in Entra ID PIM, ensuring that clinician roles are still appropriate and that no stale assignments remain.
-- **Tabletop exercises** run twice yearly, simulating this exact scenario. The goal is not to test the tech, but to verify that the team knows who to call, who has log access, what the escalation path to the Security/Privacy Officer looks like, and how to initiate HIPAA breach notification procedures within the 60-day reporting window if required.
+- **Tabletop exercises** run twice yearly, simulating this exact scenario. This practice will verify that the team knows who to call, who has log access, what the escalation path to the appropriate officer looks like, and how to initiate HIPAA breach notification procedures within the 60-day reporting window if required.
 
-The incident is closed with a report documenting the timeline, decisions made, evidence collected, and any policy or control gaps identified. That document contributes directly into the next compliance audit as evidence of a functioning incident response plan.
+The incident is closed with a report documenting the timeline, decisions made, evidence collected, and any gaps identified. That document contributes directly into the next compliance audit as evidence of a functioning incident response plan.
 
 ### Key Design Decisions and Tradeoffs
 
